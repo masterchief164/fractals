@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {throttle} from 'lodash';
 
 import { rendererProps } from './types';
+// @ts-expect-error
 import { OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import shader from './shader.glsl';
 

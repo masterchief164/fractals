@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import shader from './shader.glsl';
 
 const fragmentShader = `
 precision highp float;
@@ -81,11 +80,11 @@ void main() {
 `;
 
 const BurningShip = () => {
-    const containerRef = useRef(null);
-    const sceneRef = useRef(null);
-    const rendererRef = useRef(null);
-    const materialRef = useRef(null);
-    const isDraggingRef = useRef(false);
+    const containerRef = useRef<any>(null);
+    const sceneRef = useRef<any>(null);
+    const rendererRef = useRef<any>(null);
+    const materialRef = useRef<any>(null);
+    const isDraggingRef = useRef<any>(false);
     const lastMousePosRef = useRef(new THREE.Vector2());
     const zoomRef = useRef(2.0);
     const offsetRef = useRef(new THREE.Vector2(-0.5, 0));
@@ -136,12 +135,12 @@ const BurningShip = () => {
         };
 
         // Mouse event handlers
-        const handleMouseDown = (event) => {
+        const handleMouseDown = (event: any) => {
             isDraggingRef.current = true;
             lastMousePosRef.current.set(event.clientX, event.clientY);
         };
 
-        const handleMouseMove = (event) => {
+        const handleMouseMove = (event: any) => {
             if (!isDraggingRef.current || !materialRef.current) return;
 
             const deltaX = event.clientX - lastMousePosRef.current.x;
@@ -171,7 +170,7 @@ const BurningShip = () => {
             isDraggingRef.current = false;
         };
 
-        const handleWheel = (event) => {
+        const handleWheel = (event: any) => {
             event.preventDefault();
 
             if (!materialRef.current || !rendererRef.current) return;
@@ -191,10 +190,12 @@ const BurningShip = () => {
             // Determine the zoom factor based on the scroll direction (scroll down zooms out, scroll up zooms in)
             const zoomFactor = event.deltaY > 0 ? 1.1 : 0.9;
             zoomRef.current *= zoomFactor;
+            // @ts-ignore
             materialRef.current.uniforms.zoom.value = zoomRef.current;
 
             // Convert the center of the screen to fractal space after zooming
             const centerFractalAfterZoom = new THREE.Vector2(
+                // @ts-ignore
                 mouseX * zoomRef.current * materialRef.current.uniforms.aspect.value + offsetRef.current.x,
                 mouseY * zoomRef.current + offsetRef.current.y
             );
@@ -204,6 +205,7 @@ const BurningShip = () => {
             offsetRef.current.y += centerFractalBeforeZoom.y - centerFractalAfterZoom.y;
 
             // Update the offset in the shader material
+            // @ts-ignore
             materialRef.current.uniforms.offset.value = offsetRef.current;
         };
         // Add event listeners
@@ -217,7 +219,7 @@ const BurningShip = () => {
         handleResize();
 
         // Animation loop
-        let animationFrameId;
+        let animationFrameId: number;
         const animate = () => {
             animationFrameId = requestAnimationFrame(animate);
             renderer.render(scene, camera);
@@ -231,13 +233,15 @@ const BurningShip = () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
             renderer.domElement.removeEventListener('wheel', handleWheel);
-
+            // @ts-ignore
             cancelAnimationFrame(animationFrameId);
             renderer.dispose();
             geometry.dispose();
             material.dispose();
 
             if (containerRef.current) {
+
+                // @ts-ignore
                 containerRef.current.removeChild(renderer.domElement);
             }
         };
