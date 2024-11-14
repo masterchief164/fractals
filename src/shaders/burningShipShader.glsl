@@ -1,18 +1,12 @@
 precision highp float;
 
-// ==============
-// === WINDOW ===
-// ==============
+uniform vec2 u_resolution; // the size of the canvas
+uniform float u_aspectRatio;
+uniform vec2 u_offset; // the center of the view
+uniform float u_zoomSize; // the scale of the view
+uniform float u_maxIterations; // the maximum number of iterations
 
-uniform vec2 res;
-uniform float aspect;
-uniform float zoom;
-uniform vec2 offset;
-uniform int color_scheme;
-
-// ======================
-// === GUI PARAMETERS ===
-// ======================
+uniform int u_color_scheme;
 
 
 // =================================
@@ -30,6 +24,7 @@ vec2 conj (vec2 a) {
 // =====================
 // === COLOR SCHEMES ===
 // =====================
+
 
 vec4 basic_colormap(float s, vec3 shade) {
     vec3 coord = vec3(s, s, s);
@@ -173,18 +168,17 @@ vec4 custom_colormap_3(float s) {
 // === MAIN ===
 // ============
 
-float mandelbrot(vec2 point){
+float burningShip(vec2 point){
     float alpha = 1.0;
     vec2 z = vec2(0.0, 0.0);
     vec2 z_0;
     vec2 z_1;
 
-    // i < max iterations
-    for (int i=0; i < 200; i++){
+    for (float i=0.0; i < u_maxIterations; i+=1.0){
         z_1 = z_0;
         z_0 = z;
         z_0.x = abs(z_0.x);
-        z_0.y = abs(z_0.y);
+        z_0.y = -1.0* abs(z_0.y);
 
         // ===============================
         // =========== CACHING ===========
@@ -203,20 +197,13 @@ float mandelbrot(vec2 point){
         // ===== RECURRENCE RELATION =====
         // ===============================
         z = z_0_sq + point;
-//        z = z + a * z_0_conj + b * z_1_conj + c * z_0_sq * z_1;
-//        z = z + d * cm(z_0_sq, z_0) + e * cm(z_0, z_1_conj) + f * cm(z_0_sq, z_1);
-
-        //z = z + a * z_1 * x_0_sq + b * z_0 * x_1_sq + c * cm(z_0_sq, z_1) + d * cm(z_0, z_1_conj);
-        //z = z + a * z_1_conj + b * cm(z_1, z_0) + c * z_0_sq * z_1 + d * z_0 * z_1_conj;
-        //z = z + a * z_0_conj + b * z_1_conj + c * cm(z_1, z_0) + d * z_0_sq * z_1;
-        //z = z + a * z_0_conj + b * cm(z_0_sq, z_0_conj) + c * cm(z_0_conj, z_0_conj) + d * cm(z_0_sq, z_0);
 
         float z_0_mag = x_0_sq + y_0_sq;
         float z_1_mag = x_1_sq + y_1_sq;
 
         if(z_0_mag > 15.0){
             float frac = (12.0 - z_1_mag) / (z_0_mag - z_1_mag);
-            alpha = (float(i) - 1.0 + frac)/200.0; // should be same as max iterations
+            alpha = (float(i) - 1.0 + frac)/u_maxIterations; // should be same as max iterations
             break;
         }
     }
@@ -224,27 +211,41 @@ float mandelbrot(vec2 point){
     // in interval [0, 1]
     return alpha;
 }
+float grid(vec2 uv, float gridSize) {
+    vec2 gridLines = fract(uv / gridSize);
+    return step(500.0*u_zoomSize, gridLines.x) * step(500.0*u_zoomSize, gridLines.y);
+}
 
-// gl_FragCoord in [0,1]
-void main(){
-    vec2 uv = zoom * vec2(aspect, 1.0) * gl_FragCoord.xy / res + offset;
-    float s = 1.0 - mandelbrot(uv);
+void main() {
 
-    if (color_scheme == 0) {
+    vec2 z = u_zoomSize * vec2(u_aspectRatio, 1.0) * gl_FragCoord.xy / u_resolution + u_offset;
+
+    vec3 color = vec3(0.0);
+    float s = 1.0 - burningShip(z);
+     if (u_color_scheme == 0) {
         vec3 shade = vec3(5.38, 6.15, 3.85);
-        gl_FragColor = basic_colormap(s, shade);
-    }
-    else if (color_scheme == 1) {
+        color = basic_colormap(s, shade).xyz;
+     }
+    else if (u_color_scheme == 1) {
         vec3 shade = vec3(7.0, 3.0, 2.0);
-        gl_FragColor = basic_colormap(s, shade);
+        color = basic_colormap(s, shade).xyz;
     }
-    else if (color_scheme == 2) {
-        gl_FragColor = custom_colormap_1(pow(s, 6.0));
+    else if (u_color_scheme == 2) {
+        color = custom_colormap_1(pow(s, 6.0)).xyz;
     }
-    else if (color_scheme == 3) {
-        gl_FragColor = custom_colormap_2(pow(s, 6.0));
+    else if (u_color_scheme == 3) {
+        color = custom_colormap_2(pow(s, 6.0)).xyz;
     }
     else {
-        gl_FragColor = custom_colormap_3(pow(s, 6.0));
+        color = custom_colormap_3(pow(s, 6.0)).xyz;
     }
+
+    if(u_zoomSize < 0.0001) {
+        float gridLines = grid(z, 0.1*u_zoomSize);
+        vec3 gridColor = vec3(1.0);
+
+        color = mix(gridColor, color, gridLines);
+    }
+
+    gl_FragColor = vec4(color, 1.0);
 }
