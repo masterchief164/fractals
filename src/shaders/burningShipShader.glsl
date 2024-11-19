@@ -5,6 +5,7 @@ uniform float u_aspectRatio;
 uniform vec2 u_offset; // the center of the view
 uniform float u_zoomSize; // the scale of the view
 uniform float u_maxIterations; // the maximum number of iterations
+uniform float u_gridSize; // the size of the grid
 
 uniform int u_color_scheme;
 
@@ -240,12 +241,18 @@ void main() {
         color = custom_colormap_3(pow(s, 6.0)).xyz;
     }
 
+    if(z.x < u_gridSize*2.0 && z.x > -u_gridSize*2.0 && z.y < u_gridSize*2.0 && z.y > -u_gridSize*2.0) {
+        color = vec3(1.0, vec2(0.0));
+    }
     if(u_zoomSize < 0.0001) {
-        float gridLines = grid(z, 0.1*u_zoomSize);
+        float gridLines = grid(z, 0.1* 0.0001);
         vec3 gridColor = vec3(1.0);
 
         color = mix(gridColor, color, gridLines);
     }
+
+
+
 
     gl_FragColor = vec4(color, 1.0);
 }

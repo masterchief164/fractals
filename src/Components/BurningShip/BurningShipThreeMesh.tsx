@@ -20,6 +20,7 @@ export const BurningShipThreeMesh: React.FC<Props> = (props) => {
 
   const startZoom = 2;
   const zoomSpeed = 1;
+  const gridSize = 0.00001;
 
   // useState
   const [, hover] = useState(false);
@@ -42,6 +43,9 @@ export const BurningShipThreeMesh: React.FC<Props> = (props) => {
       },
       u_color_scheme: {
         value: props.colorScheme-1,
+      },
+      u_gridSize: {
+        value: gridSize,
       }
     }), []
   );
@@ -179,8 +183,12 @@ export const BurningShipThreeMesh: React.FC<Props> = (props) => {
     const mouseX = mousePosition.current.x / window.innerWidth;
     const mouseY = 1 - mousePosition.current.y / window.innerHeight;
 
-    coordinates[0] = zoom * getAspectRatio() * mouseX + offset.x;
-    coordinates[1] = zoom * mouseY + offset.y;
+    coordinates[0] = zoom * getAspectRatio() * mouseX + offset.x + 0.5*gridSize;
+    coordinates[1] = zoom * mouseY + offset.y + 0.5*gridSize;
+    coordinates[0] = parseFloat(coordinates[0].toFixed(5)) - 0.5*gridSize;
+    coordinates[1] = parseFloat(coordinates[1].toFixed(5)) - 0.5*gridSize;
+    coordinates[0] = parseFloat(coordinates[0].toFixed(6));
+    coordinates[1] = parseFloat(coordinates[1].toFixed(6));
     props.updatePosition({x: coordinates[0], y: coordinates[1]});
     console.log(coordinates);
   }
