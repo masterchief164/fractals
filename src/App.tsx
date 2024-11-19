@@ -8,6 +8,7 @@ function App() {
     const [maxIterations, setMaxIterations] = useState(100);
     const [colorScheme, setColorScheme] = useState(1);
     const [fractal, setFractal] = useState('mandelbrot');
+    const [zoom, setZoom] = useState(2.0);
     const updatePosition = (position: {x: number, y: number}) => {
         setPosition(position);
     }
@@ -17,12 +18,15 @@ function App() {
                      reset={reset}
                      maxIterations={maxIterations}
                      fractal={fractal}
+                     zoom={zoom}
                      colorScheme={colorScheme}/>
         <Controls position={position}
                   setReset={setReset}
                   setMaxIterations={setMaxIterations}
                   setFractal={setFractal}
                   fractal={fractal}
+                  zoom={zoom}
+                  setZoom={setZoom}
                   maxIterations={maxIterations}
                   colorScheme={colorScheme}
                   setColorScheme={setColorScheme}/>

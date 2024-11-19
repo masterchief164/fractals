@@ -3,7 +3,6 @@ import { useFrame, ThreeEvent } from '@react-three/fiber';
 import { Vector2 } from "three";
 import * as THREE from 'three';
 import burningShipShader from '../../shaders/burningShipShader.glsl';
-// import mandelbrotShader from '../../shaders/mandelbrotShader.glsl';
 
 import { getDefaultUniforms, getWindowSize, getAspectRatio } from '../../helpers/renderingHelpers.ts';
 
@@ -13,6 +12,7 @@ interface ILocalProps {
   maxIterations: number;
   colorScheme: number;
   fractal: string;
+  zoom: number;
 }
 type Props = ILocalProps;
 
@@ -46,6 +46,9 @@ export const BurningShipThreeMesh: React.FC<Props> = (props) => {
       },
       u_gridSize: {
         value: gridSize,
+      },
+      u_selectedPosition: {
+        value: new Vector2(0.0, 0.0),
       }
     }), []
   );
@@ -66,6 +69,10 @@ export const BurningShipThreeMesh: React.FC<Props> = (props) => {
     uniforms.u_resolution.value = windowSize;
     uniforms.u_aspectRatio.value = windowSize.x / windowSize.y;
   }, []);
+
+  useEffect(() => {
+    materialRef.current.uniforms.u_zoomSize.value = props.zoom;
+  }, [props.zoom]);
 
   const updateMousePosition = useCallback((e: MouseEvent) => {
 
@@ -190,6 +197,7 @@ export const BurningShipThreeMesh: React.FC<Props> = (props) => {
     coordinates[0] = parseFloat(coordinates[0].toFixed(6));
     coordinates[1] = parseFloat(coordinates[1].toFixed(6));
     props.updatePosition({x: coordinates[0], y: coordinates[1]});
+    materialRef.current.uniforms.u_selectedPosition.value = new Vector2(coordinates[0], coordinates[1]);
     console.log(coordinates);
   }
 

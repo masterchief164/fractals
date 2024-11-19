@@ -1,6 +1,15 @@
 import React from "react";
 import './Controls.css'
-import {FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Typography} from "@mui/material";
+import {
+    Button,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
+    SelectChangeEvent, Slider,
+    TextField,
+    Typography
+} from "@mui/material";
 
 
 interface ILocalProps {
@@ -12,9 +21,13 @@ interface ILocalProps {
     setColorScheme: (colorScheme: number) => void;
     setFractal: (fractal: string) => void;
     fractal: string;
+    zoom: number;
+    setZoom: (zoom: number) => void;
 }
 
-const Controls: React.FC<ILocalProps> = ({position, setReset, maxIterations, setMaxIterations, setColorScheme, colorScheme}) => {
+const Controls: React.FC<ILocalProps> = ({position, setReset, maxIterations, setMaxIterations, setColorScheme, colorScheme, zoom, setZoom}) => {
+
+    const [zoomFactor, setZoomFactor] = React.useState<number>(30);
 
     const handleResetOn = () => {
         console.log("Resetting");
@@ -38,6 +51,21 @@ const Controls: React.FC<ILocalProps> = ({position, setReset, maxIterations, set
         } catch (e) {
             console.log(e);
             setMaxIterations(1000);
+        }
+    }
+
+    const handleZoom = (zoomIn: boolean) => {
+        if(zoomIn) {
+            console.log(zoom);
+            console.log((1 - (zoomFactor / 100)));
+            setZoom(zoom * (1 - (zoomFactor / 100)));
+            console.log(zoomFactor);
+            console.log(zoom);
+        } else {
+            setZoom(zoom * (1 + (zoomFactor / 100)));
+            console.log(zoomFactor);
+            console.log(zoom);
+
         }
     }
 
@@ -73,6 +101,22 @@ const Controls: React.FC<ILocalProps> = ({position, setReset, maxIterations, set
 
                 </Select>
             </FormControl>
+            <Typography>Zoom Factor</Typography>
+            <Slider
+                aria-label="Zoom Factor"
+                defaultValue={30}
+                value={zoomFactor}
+                onChange={(_e, value) => setZoomFactor(value as number)}
+                valueLabelDisplay="auto"
+                shiftStep={10}
+                step={10}
+                marks
+                min={10}
+                max={100}
+            />
+
+            <Button onClick={()=>{handleZoom(true)}}>Zoom In</Button>
+            <Button onClick={()=>{handleZoom(false)}}>Zoom Out</Button>
             {/*<FormControl  sx={{margin: '10px'}}>*/}
             {/*    <InputLabel id="fractal">Fractal</InputLabel>*/}
             {/*    <Select*/}

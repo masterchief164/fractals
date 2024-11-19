@@ -8,9 +8,10 @@ interface ILocalProps {
  maxIterations: number;
  colorScheme: number;
  fractal: string;
+ zoom: number;
 }
 
-const BurningShip: React.FC<ILocalProps> = ({updatePosition, reset, maxIterations, colorScheme, fractal}) => {
+const BurningShip: React.FC<ILocalProps> = ({updatePosition, reset, maxIterations, colorScheme, fractal ,zoom}) => {
     return (
         <Canvas
             camera={{
@@ -22,6 +23,7 @@ const BurningShip: React.FC<ILocalProps> = ({updatePosition, reset, maxIteration
                     maxIterations={maxIterations}
                     colorScheme={colorScheme}
                     fractal={fractal}
+                    zoom={zoom}
                     reset={reset} />
 
         </Canvas>
